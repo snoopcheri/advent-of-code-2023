@@ -1,5 +1,4 @@
-import day1.puzzle1.Day1Puzzle1
-
-fun main(args: Array<String>) {
+fun main() {
     Day1Puzzle1.solve()
+    Day1Puzzle2.solve()
 }
