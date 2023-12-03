@@ -1,8 +1,22 @@
 import FileUtil.Companion.puzzleLines
+import java.nio.file.Paths
 
-class Day1Puzzle2 {
+class Day1 {
     companion object {
-        fun solve() {
+        fun solve1() {
+            println(Paths.get("").toAbsolutePath().toString())
+            val lines = puzzleLines(1, 1)
+
+            val sum = lines.sumOf { line ->
+                val first = line.first { it.isDigit() }.digitToInt()
+                val last = line.last { it.isDigit() }.digitToInt()
+                first * 10 + last
+            }
+
+            println(sum)
+        }
+
+        fun solve2() {
             val lines = puzzleLines(1, 2)
 
             val sum = lines
@@ -53,5 +67,4 @@ class Day1Puzzle2 {
             return result.toString()
         }
     }
-
 }
