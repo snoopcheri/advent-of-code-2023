@@ -2,30 +2,28 @@ import Day2.Game.Companion.toGame
 import FileUtil.Companion.puzzleLines
 import kotlin.math.max
 
-class Day2 {
+class Day2: DailyPuzzle() {
 
-    companion object {
-        private val MAX_CUBES: Cubes = Cubes(12, 13, 14)
+    private val maxCubes: Cubes = Cubes(12, 13, 14)
 
-        fun solve1() {
-            val lines = puzzleLines(2)
+    override fun solve1(): String {
+        val lines = puzzleLines(2)
 
-            val sum = lines.map { line -> toGame(line) }
-                .filter { game ->game.isValidFor(MAX_CUBES) }
-                .sumOf { game -> game.id }
+        val sum = lines.map { line -> toGame(line) }
+            .filter { game ->game.isValidFor(maxCubes) }
+            .sumOf { game -> game.id }
 
-            println(sum)
-        }
+        return sum.toString()
+    }
 
-        fun solve2() {
-            val lines = puzzleLines(2)
+    override fun solve2(): String {
+        val lines = puzzleLines(2)
 
-            val sum = lines.map { line -> toGame(line) }
-                .map { game -> game.minCubes() }
-                .sumOf { cubes -> cubes.red * cubes.green * cubes.blue }
+        val sum = lines.map { line -> toGame(line) }
+            .map { game -> game.minCubes() }
+            .sumOf { cubes -> cubes.red * cubes.green * cubes.blue }
 
-            println(sum)
-        }
+        return sum.toString()
     }
 
     private data class Cubes(val red: Int, val green: Int, val blue: Int)
@@ -107,4 +105,5 @@ class Day2 {
         }
 
     }
+
 }
