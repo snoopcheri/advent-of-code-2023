@@ -4,7 +4,7 @@ class Day3 : DailyPuzzle() {
     override fun solve1(): String {
         val lines = puzzleLines(3)
         val matrix = Matrix(lines)
-        val candidates = matrix.findCandidates()
+        val candidates = matrix.findCandidatePartNumbers()
         val sumOfPartNumbers = candidates
             .filter { it.isSurroundedBySymbol(matrix) }
             .sumOf { it.toPartNumber(matrix) }
@@ -41,12 +41,12 @@ class Day3 : DailyPuzzle() {
 
         private enum class Mode { SEARCHING, MATCHING }
 
-        fun findCandidates(): List<Candidate> {
-            return elems.flatMapIndexed { idx, row -> findCandidatesInRow(idx, row) }
+        fun findCandidatePartNumbers(): List<CandidatePartNumber> {
+            return elems.flatMapIndexed { idx, row -> findCandidatePartNumbersInRow(idx, row) }
         }
 
-        private fun findCandidatesInRow(rowNr: Int, row: CharArray): List<Candidate> {
-            val candidates = mutableListOf<Candidate>()
+        private fun findCandidatePartNumbersInRow(rowNr: Int, row: CharArray): List<CandidatePartNumber> {
+            val candidatePartNumbers = mutableListOf<CandidatePartNumber>()
             var mode = Mode.SEARCHING
             var start = 0
 
@@ -62,12 +62,25 @@ class Day3 : DailyPuzzle() {
                     Mode.MATCHING -> {
                         if (!c.isDigit()) {
                             mode = Mode.SEARCHING
-                            candidates.add(Candidate(start, rowNr, idx - start))
+                            candidatePartNumbers.add(CandidatePartNumber(rowNr, start, idx - start))
                         }
                     }
                 }
             }
 
+
+            return candidatePartNumbers
+        }
+
+        fun findCandidateGears(): List<CandidateGear> {
+            val candidates = mutableListOf<CandidateGear>()
+            for (rowNr in 0..<height) {
+                for (colNr in 0..<width) {
+                    if (elems[rowNr][colNr] == '*') {
+                        candidates.add(CandidateGear(colNr, rowNr))
+                    }
+                }
+            }
 
             return candidates
         }
@@ -81,7 +94,7 @@ class Day3 : DailyPuzzle() {
      * A candidate is a range with digits in a row.
      * But we don't know yet whether it is surrounded by a symbol.
      */
-    data class Candidate(val startX: Int, val rowNr: Int, val length: Int) {
+    data class CandidatePartNumber(val rowNr: Int, val startX: Int, val length: Int) {
 
         fun isSurroundedBySymbol(matrix: Matrix): Boolean {
             val currentRow = matrix.elems[rowNr]
@@ -111,8 +124,44 @@ class Day3 : DailyPuzzle() {
         }
     }
 
+    data class CandidateGear(val colNr: Int, val rowNr: Int) {
+
+        fun nearby(partNumbers: List<CandidatePartNumber>): Pair<CandidateGear, List<CandidatePartNumber>> {
+            val nearbyPartNumbers = mutableListOf<CandidatePartNumber>()
+
+            for (partNumber in partNumbers) {
+                val left = partNumber.startX - 1
+                val right = partNumber.startX + partNumber.length
+                val top = partNumber.rowNr - 1
+                val bottom = partNumber.rowNr + 1
+
+                if (colNr in left..right && rowNr in top..bottom) {
+                    nearbyPartNumbers.add(partNumber)
+                }
+            }
+
+            return Pair(this, nearbyPartNumbers)
+        }
+
+    }
+
     override fun solve2(): String {
-        return "TODO"
+        val lines = puzzleLines(3)
+        val matrix = Matrix(lines)
+        val partNumbers = matrix.findCandidatePartNumbers()
+        val gears = matrix.findCandidateGears()
+
+        val partNumbersByGear = gears.map { it.nearby(partNumbers) }
+
+        val result = partNumbersByGear
+            .filter { it.second.size == 2 }
+            .map { it.second }.sumOf { partNumbersForGear ->
+                partNumbersForGear
+                    .map { it.toPartNumber(matrix) }
+                    .fold(1L) { total, next -> total * next }
+            }
+
+        return result.toString()
     }
 
 }
