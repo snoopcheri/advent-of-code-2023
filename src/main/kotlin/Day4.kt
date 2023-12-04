@@ -36,8 +36,30 @@ class Day4: DailyPuzzle() {
 
     }
 
+    class Cards(private val id: Int, var copies: Int, var matches: Int) {
+        override fun toString(): String {
+            return "id:$id, #=$copies, matches=$matches"
+        }
+    }
+
     override fun solve2(): String {
-        return ""
+        val lines = puzzleLines(4)
+
+        val cardsArray = lines
+            .map { Card.of(it) }
+            .map { Cards(it.id, 1, it.matchingCards()) }
+            .toTypedArray()
+
+        for (i in cardsArray.indices) {
+            val curr = cardsArray[i]
+            for (j in 0..<curr.matches) {
+                cardsArray[i+1+j].copies += curr.copies
+            }
+        }
+
+        val sum = cardsArray.sumOf { it.copies }
+
+        return sum.toString()
     }
 
 }
